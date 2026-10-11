@@ -1,0 +1,2 @@
+# Preserve the reviewed source bytes and the shipped Bash launcher's LF endings.
+* -text

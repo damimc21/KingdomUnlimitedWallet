@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>10</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <DefineConstants>$(DefineConstants);MONO</DefineConstants>
+    <AssemblyName>KingdomUnlimitedWallet</AssemblyName>
+    <Version>1.2.0</Version>
+    <MonoReferencePath Condition="'$(MonoReferencePath)' == ''">../tools/DevLibs/BIE6_Mono</MonoReferencePath>
+    <MonoCorePath Condition="'$(MonoCorePath)' == ''">$(MonoReferencePath)/core</MonoCorePath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../Plugin.cs" Link="Plugin.cs" />
+    <Reference Include="$(MonoCorePath)/BepInEx.Core.dll" Private="false" />
+    <Reference Include="$(MonoCorePath)/BepInEx.Unity.Mono.dll" Private="false" />
+    <Reference Include="$(MonoCorePath)/0Harmony.dll" Private="false" />
+    <Reference Include="$(MonoReferencePath)/Managed/Assembly-CSharp.dll" Private="false" />
+    <Reference Include="$(MonoReferencePath)/Managed/Assembly-CSharp-firstpass.dll" Private="false" />
+    <Reference Include="$(MonoReferencePath)/Managed/UnityEngine.dll" Private="false" />
+    <Reference Include="$(MonoReferencePath)/Managed/UnityEngine.CoreModule.dll" Private="false" />
+    <Reference Include="$(MonoReferencePath)/Managed/UnityEngine.UI.dll" Private="false" />
+    <Reference Include="$(MonoReferencePath)/Managed/UnityEngine.UIModule.dll" Private="false" />
+    <Reference Include="$(MonoReferencePath)/Managed/UnityEngine.TextRenderingModule.dll" Private="false" />
+  </ItemGroup>
+</Project>
