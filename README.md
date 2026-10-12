@@ -1,21 +1,22 @@
-# Unlimited Wallet — Mono 1.2.0 source
+# Unlimited Wallet 1.2.0 source
 
-Source review for [Unlimited Wallet — Native Coin and Gem Counters](https://www.nexusmods.com/kingdomtwocrowns/mods/45), by RompeChopos.
+Source and packaging review for [Unlimited Wallet](https://www.nexusmods.com/kingdomtwocrowns/mods/45), by RompeChopos.
 
-This repository contains the source of the experimental BepInEx 6 Mono edition
-for Kingdom Two Crowns, tested on Windows Mono 2.1.3 and native Linux Mono 2.4.2.
-The C# source is shared with the IL2CPP edition; this Mono project defines `MONO`
-and compiles the matching sections.
+The final ZIP (Nexus file **157**) contains the existing IL2CPP and experimental
+Mono 1.2.0 plugin DLLs, a Linux launch helper, installation READMEs and a FOMOD
+edition selector for Vortex. BepInEx is a separate requirement. The plugin
+source and both shipped DLLs are unchanged from files 155 and 156.
 
-- [Build instructions and release hashes](BUILD.md)
-- [Plugin source](Plugin.cs)
+- [Build both editions and reproduce the ZIP](BUILD.md)
+- [Shared plugin source](Plugin.cs)
+- [IL2CPP project](IL2CPP/KingdomUnlimitedWallet.IL2CPP.csproj)
 - [Mono project](Mono/KingdomUnlimitedWallet.Mono.csproj)
-- [Native Linux Steam launcher](Mono/launch_wallet_steam.sh)
-- [Installation instructions (English / Spanish)](Mono/README.txt)
+- [Exact package inventory and hashes](Packaging/release-manifest.json)
+- [Package builder](build-package.py)
+- [Vortex installer](Packaging/files/fomod/ModuleConfig.xml)
+- [Linux launch helper](Mono/launch_wallet_steam.sh)
 
-The build requires your own legally installed Mono game's managed assemblies
-and a separate BepInEx Mono 753 installation. Game assemblies, sprites, fonts,
-third-party dependencies, credentials, and private test helpers are not included.
-
-The source package was rebuilt with .NET SDK 6.0.428 with zero errors/warnings.
-The exact release hashes and known testing limits are documented in BUILD.md.
+Builds need the original game and matching BepInEx reference libraries, supplied
+by the person compiling. This repository does not redistribute game assemblies,
+sprites, fonts, BepInEx or other third-party dependencies. Build scripts do not
+launch or alter the game; build output is local and ignored by Git.

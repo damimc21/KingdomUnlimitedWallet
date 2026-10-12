@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>10</LangVersion>
+    <Version>1.2.0</Version>
+    <AssemblyName>KingdomUnlimitedWallet</AssemblyName>
+    <RootNamespace>KingdomUnlimitedWallet</RootNamespace>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GamePath Condition="'$(GamePath)' == ''">../references/IL2CPP</GamePath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../Plugin.cs" Link="Plugin.cs" />
+    <Reference Include="$(GamePath)/BepInEx/core/*.dll" Exclude="$(GamePath)/BepInEx/core/dobby.dll" Private="false" />
+    <Reference Include="$(GamePath)/BepInEx/interop/*.dll" Private="false" />
+  </ItemGroup>
+</Project>
