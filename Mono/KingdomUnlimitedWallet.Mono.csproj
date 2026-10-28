@@ -5,12 +5,15 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <DefineConstants>$(DefineConstants);MONO</DefineConstants>
     <AssemblyName>KingdomUnlimitedWallet</AssemblyName>
-    <Version>1.2.0</Version>
+    <Version>1.3.2</Version>
     <MonoReferencePath Condition="'$(MonoReferencePath)' == ''">../tools/DevLibs/BIE6_Mono</MonoReferencePath>
     <MonoCorePath Condition="'$(MonoCorePath)' == ''">$(MonoReferencePath)/core</MonoCorePath>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../Plugin.cs" Link="Plugin.cs" />
+    <Compile Include="../CrownProtection.cs" Link="CrownProtection.cs" />
+    <Compile Include="../ProtectionPool.cs" Link="ProtectionPool.cs" />
+    <Compile Include="../WalletSettings.cs" Link="WalletSettings.cs" />
     <Reference Include="$(MonoCorePath)/BepInEx.Core.dll" Private="false" />
     <Reference Include="$(MonoCorePath)/BepInEx.Unity.Mono.dll" Private="false" />
     <Reference Include="$(MonoCorePath)/0Harmony.dll" Private="false" />
@@ -21,5 +24,7 @@
     <Reference Include="$(MonoReferencePath)/Managed/UnityEngine.UI.dll" Private="false" />
     <Reference Include="$(MonoReferencePath)/Managed/UnityEngine.UIModule.dll" Private="false" />
     <Reference Include="$(MonoReferencePath)/Managed/UnityEngine.TextRenderingModule.dll" Private="false" />
+    <Reference Include="$(MonoReferencePath)/Managed/UnityEngine.InputLegacyModule.dll" Private="false" />
+    <Reference Include="$(MonoReferencePath)/Managed/UnityEngine.Physics2DModule.dll" Private="false" />
   </ItemGroup>
 </Project>

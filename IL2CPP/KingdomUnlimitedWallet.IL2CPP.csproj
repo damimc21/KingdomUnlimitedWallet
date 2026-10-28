@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <LangVersion>10</LangVersion>
-    <Version>1.2.0</Version>
+    <Version>1.3.2</Version>
     <AssemblyName>KingdomUnlimitedWallet</AssemblyName>
     <RootNamespace>KingdomUnlimitedWallet</RootNamespace>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
@@ -10,6 +10,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../Plugin.cs" Link="Plugin.cs" />
+    <Compile Include="../CrownProtection.cs" Link="CrownProtection.cs" />
+    <Compile Include="../ProtectionPool.cs" Link="ProtectionPool.cs" />
+    <Compile Include="../WalletSettings.cs" Link="WalletSettings.cs" />
     <Reference Include="$(GamePath)/BepInEx/core/*.dll" Exclude="$(GamePath)/BepInEx/core/dobby.dll" Private="false" />
     <Reference Include="$(GamePath)/BepInEx/interop/*.dll" Private="false" />
   </ItemGroup>

@@ -1,31 +1,31 @@
-UNLIMITED WALLET 1.2.0 - UNIFIED INSTALLATION
+UNLIMITED WALLET 1.3.2
 
-ESPAÑOL
-Una descarga contiene las dos ediciones del mod. BepInEx NO esta incluido:
-instala antes la version de BepInEx indicada en los requisitos de Nexus.
-Manual: descomprime el ZIP fuera del juego. Copia el CONTENIDO de una sola
-carpeta Manual/<edicion> junto a KingdomTwoCrowns.exe (o al ejecutable Linux).
-Windows actual y Proton: IL2CPP. Windows antiguo y Linux nativo: Mono.
-No copies ambas carpetas: instala solo una DLL del mod.
-Vortex Windows: importa este ZIP y elige una sola edicion en el instalador.
-Al anadir el juego por primera vez, Vortex obtiene el soporte de su catalogo.
-No necesitas el antiguo ZIP opcional Kingdom Two Crowns Vortex Support.
-Este paquete indica a Vortex que despliegue respecto a la raiz del juego.
-Desactiva la version anterior del mod antes de habilitar esta instalacion.
-Linux: chmod +x run_bepinex.sh launch_wallet_steam.sh; opciones de Steam:
-./launch_wallet_steam.sh %command%
-Proton: WINEDLLOVERRIDES=winhttp=n,b %command%
-El primer arranque IL2CPP puede descargar las bibliotecas Unity oficiales.
-Mono sigue siendo experimental y su archivo publicado espera revision de Nexus.
+ES
+BepInEx es un requisito aparte y NO esta incluido.
+Manual: extrae este ZIP fuera del juego y copia el CONTENIDO de UNA carpeta
+Manual/IL2CPP o Manual/Mono en la raiz del juego. No copies ambas ediciones.
+Vortex: importa este ZIP, elige una edicion y despliega. Desactiva la version
+anterior antes de activar esta. No requiere nuestro antiguo ZIP de soporte.
+Windows actual / Proton: IL2CPP. Windows antiguo / Linux nativo: Mono.
 
-ENGLISH
-Extract outside the game and copy the CONTENTS of ONE Manual/<edition>
-folder into the game root. Do not combine editions. Vortex uses the FOMOD
-wizard. Install matching BepInEx separately first. When adding the game,
-Vortex obtains game support from its catalogue. No separate support ZIP
-from this mod page is needed. Disable the previous wallet before enabling
-this package. The package requests deployment relative to the game root.
-The wallet DLLs are unchanged from the tested 1.2.0 releases. See their bundled
-READMEs for compatibility, backup and removal instructions.
+F2 abre la configuracion: escudos, perdida de recursos, resistencia maxima
+y recuperacion por recurso. Los escudos son opcionales y se recuperan
+recogiendo monedas/gemas, sin bolsa. El dano conserva su proporcion original.
+Las dos opciones se activan por separado. Por defecto: escudos NO y perdida SI.
+Sin ambas penalizaciones, los golpes normales no penalizan. El robo especial
+de corona sigue funcionando. Al llegar a cero escudos, cae la corona.
+Opciones nuevas: un jugador y cooperativo local; online conserva el original.
+Consulta el README de tu edicion para el guardado y la compatibilidad comprobada.
 
-Wallet source: https://github.com/damimc21/KingdomUnlimitedWallet
+EN
+Install matching BepInEx separately. For manual installation, copy the contents
+of ONE Manual/<edition> folder into the game root. Vortex uses the included
+edition selector. Disable the previous wallet mod first. Do not combine DLLs.
+Press F2 for optional shield health and independent resource loss. Recover
+protection by collecting resources. Default maximum 60, recovery 1 per item.
+Defaults preserve legacy difficulty. The new difficulty options are offline
+and local-coop only; online retains native behavior. See the edition README.
+
+Linux: chmod +x run_bepinex.sh launch_wallet_steam.sh
+Steam Linux launch option: ./launch_wallet_steam.sh %command%
+Proton launch option: WINEDLLOVERRIDES=winhttp=n,b %command%

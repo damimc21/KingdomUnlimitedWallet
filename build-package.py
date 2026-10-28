@@ -34,7 +34,7 @@ for entry in manifest["entries"]:
 args.output.parent.mkdir(parents=True, exist_ok=True)
 with zipfile.ZipFile(args.output, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as archive:
     for name, (data, mode) in sorted(payload.items()):
-        item = zipfile.ZipInfo(name, (2026, 10, 11, 0, 0, 0))
+        item = zipfile.ZipInfo(name, tuple(manifest["zip_timestamp"]))
         item.compress_type = zipfile.ZIP_DEFLATED
         item.external_attr = mode << 16
         archive.writestr(item, data)

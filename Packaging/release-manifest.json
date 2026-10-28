@@ -1,33 +1,40 @@
 {
-  "version": "1.2.0",
+  "version": "1.3.2",
   "nexus_game_id": 2695,
   "nexus_mod_id": 45,
-  "nexus_file_id": 157,
-  "archive": "Unlimited-Wallet-1.2.0-Unified.zip",
-  "sha256": "1ec068f068f299fb2e45bb4bfab2c822ed02079f19aa8652b36b5176f0acc254",
+  "archive": "Unlimited-Wallet-1.3.2.zip",
+  "sha256": "821ccacb799d78d9982d557b4bd28a7e1a49f38fc55d5a1c9b0512f2909f9322",
+  "zip_timestamp": [
+    2026,
+    10,
+    23,
+    0,
+    0,
+    0
+  ],
   "entries": [
     {
       "name": "Manual/IL2CPP/BepInEx/plugins/KingdomUnlimitedWallet/KingdomUnlimitedWallet.dll",
-      "bytes": 18432,
-      "sha256": "4b3a1af40618f2c40ed311d16bb93e3eec432adad389e9b394b070122224d92f",
+      "bytes": 34304,
+      "sha256": "8c4db7e2c596f7d94fd8ceaff2fa6b726c5ddb440c3d0250a3e2b4819af8c530",
       "unix_mode": "0o100644"
     },
     {
       "name": "Manual/IL2CPP/BepInEx/plugins/KingdomUnlimitedWallet/README.txt",
-      "bytes": 4562,
-      "sha256": "d9e4a55c10320ae074affc0ee5121f3840a768aed8f1efd71c30ca0a350ee764",
+      "bytes": 1763,
+      "sha256": "6115f96713b0ffad36c108d1d2aff288802e97d4d8f1ab5d8d46dd07f7c4ab13",
       "unix_mode": "0o100644"
     },
     {
       "name": "Manual/Mono/BepInEx/plugins/KingdomUnlimitedWallet/KingdomUnlimitedWallet.dll",
-      "bytes": 15360,
-      "sha256": "3cbf73b6f18e84ef906dbc5ed95fc5af76b33c62f1c0c0cd853eddb5813ffab0",
+      "bytes": 31744,
+      "sha256": "557be92f9634a2e12951d93928d532061d05dee1413c742f0f791e618f6ca755",
       "unix_mode": "0o100644"
     },
     {
       "name": "Manual/Mono/BepInEx/plugins/KingdomUnlimitedWallet/README.txt",
-      "bytes": 6073,
-      "sha256": "2938b83d9fae692032168cf48b77c765fe8451d7690245a7400f713e5449cd21",
+      "bytes": 1761,
+      "sha256": "6f15c4fd92222836b7f5a4622613d37189c5030635cebdb41b7e4d2da45a9fcb",
       "unix_mode": "0o100644"
     },
     {
@@ -38,20 +45,20 @@
     },
     {
       "name": "README-FIRST.txt",
-      "bytes": 1824,
-      "sha256": "c180515a6c5988b4b0df30a5f32fe7d141eebc81b2b70bc835bb0c1414003c0c",
+      "bytes": 1788,
+      "sha256": "80f0bcd687aeb9e63e544ccdf7092f36f1364abd10e2dae9332110b0fd8a1c65",
       "unix_mode": "0o100644"
     },
     {
       "name": "fomod/ModuleConfig.xml",
-      "bytes": 1562,
-      "sha256": "91fc590c9c6e970d1455c840af827d29814d6bea12f9d82ed33d402c44af7fac",
+      "bytes": 1545,
+      "sha256": "3fdaae5358092389887709d545f35c1462c29146da2b526f5b2ba16328d72534",
       "unix_mode": "0o100644"
     },
     {
       "name": "fomod/info.xml",
-      "bytes": 341,
-      "sha256": "f5b7f562bc8208a8dd9bc6cc08c29b2461a97a0ad0c8b73396fdbff8be3315d9",
+      "bytes": 303,
+      "sha256": "333db55fb3d8962b707f6f987bc2d5122c46028e3833cf43aba20fbc9ec01d12",
       "unix_mode": "0o100644"
     },
     {

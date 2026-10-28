@@ -19,7 +19,7 @@ using UnityEngine.UI;
 
 namespace KingdomUnlimitedWallet
 {
-    [BepInPlugin(Id, "Contadores sin limite", "1.2.0")]
+    [BepInPlugin(Id, "Contadores sin limite", "1.3.2")]
 #if MONO
     public class Plugin : BaseUnityPlugin
 #else
@@ -30,6 +30,8 @@ namespace KingdomUnlimitedWallet
         internal static ManualLogSource LogSource;
         internal static ConfigEntry<int> FontSize;
         internal static ConfigEntry<bool> ExtraResources;
+        internal static ConfigEntry<bool> UseProtection, LoseResources;
+        internal static ConfigEntry<int> MaximumProtection, RecoveryPerResource;
         internal static bool Verify;
 
 #if MONO
@@ -46,6 +48,10 @@ namespace KingdomUnlimitedWallet
             FontSize = Config.Bind("Pantalla", "TamanoTexto", 24, new ConfigDescription("Tamano de los contadores (escala con la resolucion).",
                 new AcceptableValueRange<int>(14, 48)));
             ExtraResources = Config.Bind("Pantalla", "OtrosRecursos", true, "Mostrar otros recursos de la bolsa si tienes alguno.");
+            UseProtection = Config.Bind("Dificultad", "Escudos", false, "Vida independiente del dinero. F2: configurar. Un jugador y cooperativo local; online conserva el comportamiento original.");
+            LoseResources = Config.Bind("Dificultad", "PerderRecursos", true, "Descontar y soltar recursos al recibir dano. Sin escudos y sin perdida, los golpes normales no penalizan; el robo especial de corona se conserva.");
+            MaximumProtection = Config.Bind("Dificultad", "ResistenciaMaxima", 60, new ConfigDescription("Puntos de proteccion. Cada ataque consume su dano original, no un escudo entero por golpe.", new AcceptableValueRange<int>(1, 1000)));
+            RecoveryPerResource = Config.Bind("Dificultad", "RecuperacionPorRecurso", 1, new ConfigDescription("Puntos recuperados por moneda, gema u otro recurso elegible realmente recogido. El dinero acumulado no cura.", new AcceptableValueRange<int>(1, 20)));
             Verify = File.Exists(Path.Combine(Paths.PluginPath, "wallet-verify.flag"));
             // Verification runs pause simulation before the existing campaign advances.
             var harmony = new Harmony(Id);
@@ -65,6 +71,8 @@ namespace KingdomUnlimitedWallet
             {
                 foreach (var patch in patches)
                     harmony.Patch(patch.Target, prefix: new HarmonyMethod(typeof(Plugin), patch.Prefix));
+                CrownProtection.Install(harmony);
+                WalletSettings.Install(harmony);
 #if MONO
                 gameObject.AddComponent<CounterHud>();
 #else
@@ -76,7 +84,7 @@ namespace KingdomUnlimitedWallet
                 harmony.UnpatchSelf();
                 throw;
             }
-            LogSource.LogInfo("Contadores sin limite cargados: cartera original, sin fisica ni desbordamiento de bolsa.");
+            LogSource.LogInfo("Contadores sin limite 1.3.2 cargados. F2: escudos y dificultad. Sin fisica ni desbordamiento de bolsa.");
         }
 
         private static MethodInfo RequireMethod(Type type, string name) =>
@@ -100,6 +108,8 @@ namespace KingdomUnlimitedWallet
         private readonly Dictionary<string, ResourceRow> rows = new();
         private readonly Dictionary<CurrencyType, IconAsset> icons = new();
         private Font nativeFont;
+        private IconAsset protectionIcon;
+        private Texture2D protectionTexture;
         // Kingdom's visible digits are baked at ten pixels. Some builds report
         // a larger line height, so the text rectangle must accommodate both.
         private const float GlyphHeight = 10;
@@ -113,6 +123,8 @@ namespace KingdomUnlimitedWallet
             internal RectTransform Rect;
             internal Image Icon;
             internal Text Number;
+            internal Text Separator;
+            internal Text Maximum;
         }
 
         private sealed class IconAsset
@@ -143,6 +155,7 @@ namespace KingdomUnlimitedWallet
                     var bag = p.GetCurrencyBag();
                     if (bag != null) bag.HideImmediate();
                 }
+                CrownProtection.Tick(players);
                 UpdateHud();
 #if !MONO
                 if (Plugin.Verify && players.Length > 0 && Managers.Inst != null && Managers.Inst.game != null && Managers.Inst.game.state == Game.State.Playing)
@@ -175,7 +188,7 @@ namespace KingdomUnlimitedWallet
                 Plugin.LogSource.LogInfo($"HUD: fuente del juego = {font.name}");
             }
             foreach (var row in rows.Values) row.Root.SetActive(false);
-            float rowHeight = Math.Max(34, Plugin.FontSize.Value + 12);
+            float rowHeight = Math.Max(36, Plugin.FontSize.Value + 14);
             for (int n = 0; n < players.Length; n++)
             {
                 var player = players[n];
@@ -186,6 +199,16 @@ namespace KingdomUnlimitedWallet
                 float top = 24 + n / 2 * rowHeight * 8;
                 UpdateRow(player, CurrencyType.Coins, left, top + index++ * rowHeight, rowHeight);
                 UpdateRow(player, CurrencyType.Gems, left, top + index++ * rowHeight, rowHeight);
+                if (CrownProtection.Enabled)
+                {
+                    var protection = CrownProtection.For(player);
+                    if (protection != null)
+                    {
+                        if (protectionIcon == null) CreateProtectionIcon();
+                        UpdateRow(player, CurrencyType.Crown, left, top + index++ * rowHeight, rowHeight,
+                            protection.Current.ToString(), protectionIcon, protection.Maximum.ToString());
+                    }
+                }
                 if (!Plugin.ExtraResources.Value) continue;
                 foreach (var type in CurrencyManager.AllCurrencyTypes)
                 {
@@ -258,7 +281,11 @@ namespace KingdomUnlimitedWallet
             return icon;
         }
 
-        private void UpdateRow(Player player, CurrencyType type, bool left, float top, float height)
+#if !MONO
+        [HideFromIl2Cpp]
+#endif
+        private void UpdateRow(Player player, CurrencyType type, bool left, float top, float height,
+            string displayedAmount = null, IconAsset displayedIcon = null, string maximumAmount = null)
         {
             string key = player.playerId + ":" + type;
             if (!rows.TryGetValue(key, out var row))
@@ -272,58 +299,144 @@ namespace KingdomUnlimitedWallet
                 row.Icon = iconObj.AddComponent<Image>();
                 row.Icon.raycastTarget = false;
                 row.Icon.preserveAspect = true;
-                var numberObj = new GameObject("Amount");
-                numberObj.transform.SetParent(row.Root.transform, false);
-                row.Number = numberObj.AddComponent<Text>();
-                row.Number.raycastTarget = false;
-                row.Number.alignment = TextAnchor.MiddleLeft;
-                row.Number.horizontalOverflow = HorizontalWrapMode.Overflow;
-                row.Number.verticalOverflow = VerticalWrapMode.Overflow;
-                row.Number.color = new Color(1, .95f, .83f);
-                row.Number.fontStyle = FontStyle.Normal;
-                var outline = numberObj.AddComponent<Shadow>();
-                outline.effectColor = new Color(.1f, .08f, .07f, .9f);
-                outline.effectDistance = new Vector2(1, -1);
+                row.Number = CreateNumber(row.Root, "Amount");
+                row.Separator = CreateNumber(row.Root, "Protection separator");
+                row.Maximum = CreateNumber(row.Root, "Protection maximum");
                 rows[key] = row;
             }
             row.Root.SetActive(true);
             var corner = new Vector2(left ? 0 : 1, 1);
             row.Rect.anchorMin = row.Rect.anchorMax = row.Rect.pivot = corner;
             row.Rect.anchoredPosition = new Vector2(left ? 28 : -28, -top);
-            row.Number.font = nativeFont;
-            int nativeSize = Math.Max(1, Language.current.regularFont.size);
-            // Some Windows font assets report dynamic=True but keep ten-pixel
-            // glyphs. Request enough native line space before scaling the glyphs.
-            if (nativeFont != null && nativeFont.dynamic) nativeSize = Math.Max(nativeSize, 24);
-            row.Number.fontSize = nativeSize;
             // Scale the visible bitmap digits, keeping the game's native font settings.
             float textScale = Plugin.FontSize.Value / GlyphHeight;
-            row.Number.transform.localScale = new Vector3(textScale, textScale, 1);
-            row.Number.text = player.wallet.GetCurrency(type).ToString("N0", CultureInfo.GetCultureInfo("es-ES"));
-            float numberWidth = Math.Max(32, row.Number.preferredWidth * textScale + 4);
             float iconSize = 28;
+            float numberLeft = iconSize + 10;
+            float amountWidth = PositionNumber(row.Number,
+                displayedAmount ?? player.wallet.GetCurrency(type).ToString("N0", CultureInfo.GetCultureInfo("es-ES")),
+                textScale, height, numberLeft);
+            row.Separator.gameObject.SetActive(maximumAmount != null);
+            row.Maximum.gameObject.SetActive(maximumAmount != null);
+            if (maximumAmount != null)
+            {
+                // Kingdom's slash is much taller than its digits. Scale only the
+                // separator, retaining full-size current and maximum values.
+                float separatorWidth = PositionNumber(row.Separator, "/", textScale * .55f,
+                    height, numberLeft + amountWidth + 3, -1);
+                float maximumWidth = PositionNumber(row.Maximum, maximumAmount, textScale,
+                    height, numberLeft + amountWidth + 3 + separatorWidth + 3);
+                FitSeparator(row.Separator, row.Maximum);
+                amountWidth += 3 + separatorWidth + 3 + maximumWidth;
+            }
+            float numberWidth = Math.Max(32, amountWidth + 4);
             row.Rect.sizeDelta = new Vector2(iconSize + 10 + numberWidth, height);
-            var icon = FindIcon(type);
+            var icon = displayedIcon ?? FindIcon(type);
             row.Icon.enabled = icon != null;
             if (icon != null) { row.Icon.sprite = icon.Sprite; row.Icon.color = icon.Tint; }
             var iconRect = row.Icon.rectTransform;
-            iconRect.anchorMin = iconRect.anchorMax = iconRect.pivot = new Vector2(0, .5f);
+            iconRect.anchorMin = iconRect.anchorMax = new Vector2(0, .5f);
+            iconRect.pivot = new Vector2(.5f, .5f);
             // gem_spin has transparent space above the visible diamond. Compensate
             // for that padding so its visual centre lines up with the digits.
-            iconRect.anchoredPosition = new Vector2(0, type == CurrencyType.Gems ? 4 : 0);
+            // Centre narrower sprites (especially the shield) within the same
+            // icon column, and align their visible centres with the digit bodies.
+            iconRect.anchoredPosition = new Vector2(iconSize / 2, -2 + (type == CurrencyType.Gems ? 4 : 0));
             iconRect.sizeDelta = new Vector2(iconSize, iconSize);
-            var numberRect = row.Number.rectTransform;
+        }
+
+        private static Text CreateNumber(GameObject parent, string name)
+        {
+            var numberObj = new GameObject(name);
+            numberObj.transform.SetParent(parent.transform, false);
+            var number = numberObj.AddComponent<Text>();
+            number.raycastTarget = false;
+            number.alignment = TextAnchor.MiddleLeft;
+            number.horizontalOverflow = HorizontalWrapMode.Overflow;
+            number.verticalOverflow = VerticalWrapMode.Overflow;
+            number.color = new Color(1, .95f, .83f);
+            number.fontStyle = FontStyle.Normal;
+            var outline = numberObj.AddComponent<Shadow>();
+            outline.effectColor = new Color(.1f, .08f, .07f, .9f);
+            outline.effectDistance = new Vector2(1, -1);
+            return number;
+        }
+
+        private float PositionNumber(Text number, string value, float scale, float height, float left, float y = 0)
+        {
+            number.font = nativeFont;
+            int nativeSize = Math.Max(1, Language.current.regularFont.size);
+            // Some font assets report dynamic=True but retain bitmap glyph sizes.
+            if (nativeFont != null && nativeFont.dynamic) nativeSize = Math.Max(nativeSize, 24);
+            number.fontSize = nativeSize;
+            number.transform.localScale = new Vector3(scale, scale, 1);
+            number.text = value;
+            float width = number.preferredWidth * scale;
+            var numberRect = number.rectTransform;
             numberRect.anchorMin = numberRect.anchorMax = numberRect.pivot = new Vector2(0, .5f);
-            numberRect.anchoredPosition = new Vector2(iconSize + 10, 0);
+            numberRect.anchoredPosition = new Vector2(left, y);
             // Unity can clip glyphs when the rectangle is shorter than the font's
             // preferred line height, even with vertical overflow enabled.
-            numberRect.sizeDelta = new Vector2(numberWidth / textScale,
-                Math.Max(height / textScale, row.Number.preferredHeight + 2));
+            numberRect.sizeDelta = new Vector2(width / scale + 2,
+                Math.Max(height / scale, number.preferredHeight + 2));
+            return width;
+        }
+
+        private static void FitSeparator(Text separator, Text digits)
+        {
+            // Fit the visible glyph, not the font's padded line rectangle. Keep
+            // the narrow horizontal scale while aligning both ends to the digits.
+            if (!GlyphBounds(digits, out float digitBottom, out float digitTop) ||
+                !GlyphBounds(separator, out float slashBottom, out float slashTop)) return;
+            float scaleY = digits.transform.localScale.y * (digitTop - digitBottom) / (slashTop - slashBottom);
+            var scale = separator.transform.localScale;
+            separator.transform.localScale = new Vector3(scale.x, scaleY, 1);
+            var position = separator.rectTransform.anchoredPosition;
+            position.y = digits.rectTransform.anchoredPosition.y + digitBottom * digits.transform.localScale.y - slashBottom * scaleY;
+            separator.rectTransform.anchoredPosition = position;
+        }
+
+        private static bool GlyphBounds(Text text, out float bottom, out float top)
+        {
+            var generator = text.cachedTextGenerator;
+            generator.Populate(text.text, text.GetGenerationSettings(text.rectTransform.rect.size));
+            var vertices = generator.verts;
+            bottom = float.PositiveInfinity;
+            top = float.NegativeInfinity;
+            // vertexCount excludes the dummy quad appended to the verts list.
+            for (int i = 0; i < generator.vertexCount; i++)
+            {
+                float y = vertices[i].position.y / text.pixelsPerUnit;
+                bottom = Math.Min(bottom, y);
+                top = Math.Max(top, y);
+            }
+            return top > bottom;
         }
 
         public void OnDestroy()
         {
+            WalletSettings.Close();
+            CrownProtection.Flush();
             if (hudRoot != null) UnityEngine.Object.Destroy(hudRoot);
+            if (protectionIcon?.Sprite != null) UnityEngine.Object.Destroy(protectionIcon.Sprite);
+            if (protectionTexture != null) UnityEngine.Object.Destroy(protectionTexture);
+        }
+
+        private void CreateProtectionIcon()
+        {
+            // A tiny code-drawn pixel shield: no external asset or art dependency.
+            string[] mask = { "..GGGGGGG..", ".GLLLLLLLG.", "GLBBBBBBBLG", "GLBBBBBBBLG", "GLBBBLBBBLG",
+                "GLBBLLLBBLG", "GLBBBLBBBLG", ".GLBBBBBLG.", ".GLBBBBBLG.", "..GLBBBLG..", "...GLBLG...", "....GLG....", ".....G....." };
+            protectionTexture = new Texture2D(11, 13, TextureFormat.RGBA32, false);
+            protectionTexture.filterMode = FilterMode.Point;
+            var pixels = new Color[11 * 13];
+            for (int y = 0; y < 13; y++) for (int x = 0; x < 11; x++)
+            {
+                char p = mask[12 - y][x];
+                pixels[y * 11 + x] = p == 'G' ? new Color(.62f, .43f, .19f) : p == 'L' ? new Color(.96f, .83f, .53f)
+                    : p == 'B' ? new Color(.27f, .55f, .66f) : Color.clear;
+            }
+            protectionTexture.SetPixels(pixels); protectionTexture.Apply();
+            protectionIcon = new IconAsset { Sprite = Sprite.Create(protectionTexture, new Rect(0, 0, 11, 13), new Vector2(.5f, .5f), 1), Tint = Color.white };
         }
 
 #if !MONO
