@@ -1,31 +1,62 @@
-# Unlimited Wallet 1.3.2
+# Unlimited Wallet
 
-Source and packaging review for [Unlimited Wallet](https://www.nexusmods.com/kingdomtwocrowns/mods/45), by RompeChopos.
+Coin and gem counters without the usual pouch limit, using the game's own icons.
+Optional shields keep enemy attacks dangerous. Press **F2** to configure difficulty.
 
-Native resource counters without pouch overflow, plus optional shield health and
-independent resource loss. Press **F2** for difficulty settings. Protection recovers
-through actual resource pickups and persists per campaign/reign/player. New
-difficulty options apply in solo/local co-op; online retains native damage.
+## Download
 
-One ZIP contains both editions: select exactly one in Vortex, or copy one
-`Manual/<edition>` folder into the game root. Matching BepInEx 6 is installed
-separately; there is no additional wallet support package.
+**[Download Unlimited Wallet 1.3.2.zip](https://github.com/damimc21/KingdomUnlimitedWallet/releases/download/v1.3.2/Unlimited-Wallet-1.3.2.zip)**
 
-- [Build both editions and reproduce the release ZIP](BUILD.md)
-- [Review notes and validation scope](REVIEW-1.3.2.md)
-- Shared source: [Plugin.cs](Plugin.cs), [CrownProtection.cs](CrownProtection.cs),
-  [ProtectionPool.cs](ProtectionPool.cs), [WalletSettings.cs](WalletSettings.cs)
-- [IL2CPP project](IL2CPP/KingdomUnlimitedWallet.IL2CPP.csproj) / [Mono project](Mono/KingdomUnlimitedWallet.Mono.csproj)
-- [Exact ZIP inventory and hashes](Packaging/release-manifest.json)
-- [Source hashes](Packaging/source-manifest.json) / [package builder](build-package.py)
-- [Vortex selector](Packaging/files/fomod/ModuleConfig.xml) / [Linux launcher](Mono/launch_wallet_steam.sh)
+[Español](README.es.md) · [All releases](https://github.com/damimc21/KingdomUnlimitedWallet/releases) · [Nexus Mods](https://www.nexusmods.com/kingdomtwocrowns/mods/45)
 
-The two shipped DLLs were tested on Windows IL2CPP 2.4.3, Windows Mono 2.1.3 and
-native Linux Mono 2.4.2. See the review notes for the checks and limitations.
+One ZIP includes both editions. Download the file above; GitHub's **Source code**
+archives contain source files, not the installable mod.
 
-Builds require locally supplied game/BepInEx reference libraries. This repository
-does not redistribute game assemblies, sprites, fonts or third-party loaders.
-Private test helpers and personal saves are not published here.
+## Before installing
 
-The previous 1.2.0 source and review are preserved in Git history at
-[`64329a4`](https://github.com/damimc21/KingdomUnlimitedWallet/tree/64329a4).
+Close the game. **Matching BepInEx 6 is required separately** — [loader setup](INSTALL.md).
+Disable/remove your previous Unlimited Wallet installation before updating.
+
+| Your game folder contains | Select |
+|---|---|
+| `GameAssembly.dll` (Windows / Proton) | **IL2CPP** |
+| `KingdomTwoCrowns_Data/Managed/Assembly-CSharp.dll` (older Windows / native Linux) | **Mono** |
+
+Find the game folder in Steam: **Properties → Installed Files → Browse**.
+Install only one edition.
+
+## Vortex
+
+1. Select **Kingdom Two Crowns** in Vortex. If prompted, install its game support from the Vortex catalogue.
+2. In **Mods → Install From File**, select the downloaded ZIP and choose **IL2CPP** or **Mono**.
+3. Enable the mod, **Deploy Mods**, then launch the game through Steam.
+
+No separate Unlimited Wallet support ZIP is needed.
+
+## Manual
+
+1. Extract the ZIP outside the game folder.
+2. Copy the **contents** of `Manual/IL2CPP` or `Manual/Mono` into the game folder,
+   beside its executable. Merge the `BepInEx` folder when asked.
+3. Launch the game through Steam. For Linux/Proton, see the [launch options](INSTALL.md#linux-and-proton).
+
+The installed plugin is `BepInEx/plugins/KingdomUnlimitedWallet/KingdomUnlimitedWallet.dll`.
+
+## In game
+
+**F2** opens the optional shield/resource-loss settings. Collect resources to
+recover shields. New difficulty options apply in solo and local co-op; online
+keeps native damage. Shields are off by default.
+
+<details>
+<summary>Source, builds and review</summary>
+
+- [Build instructions and release hashes](BUILD.md)
+- [Validation and compatibility](REVIEW-1.3.2.md)
+- [Exact package inventory](Packaging/release-manifest.json)
+- [Source hashes](Packaging/source-manifest.json)
+- [Previous 1.2.0 source](https://github.com/damimc21/KingdomUnlimitedWallet/tree/64329a4)
+
+</details>
+
+By RompeChopos. Credits: BepInEx, Harmony, Il2CppInterop and abevol.
